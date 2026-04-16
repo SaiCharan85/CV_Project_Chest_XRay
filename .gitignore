@@ -1,0 +1,10 @@
+chest_xray/
+*.zip
+__pycache__/
+*.pyc
+venv/
+.DS_Store
+*.onnx
+*.onnx
+*.onnx.data
+best_model.pth
