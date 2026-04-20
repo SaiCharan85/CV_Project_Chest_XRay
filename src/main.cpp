@@ -4,6 +4,8 @@
 #include "ImageLoader.h"
 #include "ImagePreprocessor.h"
 #include "Model_Inference.h"
+#include "MetricsComputer.h"
+#include "Visualizer.h"
 
 int main() {
     std::string dataset_root = "chest_xray/chest_xray";
@@ -59,7 +61,30 @@ int main() {
         std::cout << "Total time:    " << total_sec << " sec" << std::endl;
         std::cout << "Per image:     " << (total_sec / images.size()) << " sec" << std::endl;
 
-        // MetricsComputer + Visualizer will go here (Dina — Person 3)
+        // ---- Dina's part: MetricsComputer + Visualizer ----
+
+        // compute precision, recall, f1, confusion matrix
+        Metrics m = MetricsComputer::compute(predicted_labels, true_labels);
+        MetricsComputer::printReport(m);
+        MetricsComputer::printConfusionMatrix(m);
+
+        // save 10 annotated x-ray images to output/ folder for the report
+        Visualizer viz("output");
+        int saved = 0;
+
+        for (size_t i = 0; i < images.size() && saved < 10; i++) {
+            auto tensor = ImagePreprocessor::preprocess(images[i].image);
+            auto logits = model.infer(tensor);
+
+            // softmax to get confidence score for pneumonia
+            float exp0 = std::exp(logits[0]);
+            float exp1 = std::exp(logits[1]);
+            float conf = exp1 / (exp0 + exp1);
+
+            std::string pred = (conf >= threshold) ? "PNEUMONIA" : "NORMAL";
+            viz.annotateAndSave(images[i].image, images[i].filename, pred, conf);
+            saved++;
+        }
 
     }
     catch (const Ort::Exception& e) {
