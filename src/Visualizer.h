@@ -7,11 +7,12 @@ public:
     // constructor takes the output folder path
     Visualizer(const std::string& output_dir);
 
-    // draws prediction + confidence on the image and saves it
+    // draws actual label, prediction, confidence, and match status on the image and saves it
     void annotateAndSave(const cv::Mat& image,
-                         const std::string& filename,
-                         const std::string& prediction,
-                         float confidence);
+        const std::string& filename,
+        const std::string& actual_label,
+        const std::string& prediction,
+        float confidence);
 
 private:
     std::string output_dir_;
